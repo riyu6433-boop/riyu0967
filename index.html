@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>BTCポートフォリオ</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 24px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .value {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+    .profit {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #2ecc71;
+    }
+    .loss {
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>BTCポートフォリオ</h1>
+    <div id="price" class="value">現在価格: 読み込み中...</div>
+    <div id="portfolio" class="value">評価額: 読み込み中...</div>
+    <div id="profit" class="value">含み益: 読み込み中...</div>
+  </div>
+
+  <script>
+    const initialInvestment = 800000;
+
+    async function fetchPrice() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=jpy");
+        const data = await res.json();
+        const price = data.bitcoin.jpy;
+
+        const btcAmount = 800000 / price;
+        const currentValue = btcAmount * price;
+        const profit = currentValue - initialInvestment;
+
+        document.getElementById("price").innerText = `現在価格: ${price.toLocaleString()} 円`;
+        document.getElementById("portfolio").innerText = `評価額: ${Math.round(currentValue).toLocaleString()} 円`;
+
+        const profitElem = document.getElementById("profit");
+        profitElem.innerText = `含み益: ${Math.round(profit).toLocaleString()} 円`;
+        profitElem.className = "value profit";
+        if (profit < 0) profitElem.classList.add("loss");
+      } catch {
+        document.getElementById("price").innerText = "価格取得エラー";
+      }
+    }
+
+    fetchPrice();
+    setInterval(fetchPrice, 60000);
+  </script>
+</body>
+</html>
